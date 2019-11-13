@@ -43,7 +43,7 @@ module.exports = function makePromisePlus(options) {
 
   promise.resolve = function (arg) {
     if (promise.isFulfilled) {
-      return;
+      return promise;
     }
     setResolved(promise);
 
@@ -54,11 +54,13 @@ module.exports = function makePromisePlus(options) {
 
       promise.reject(err);
     });
+
+    return promise;
   };
 
   promise.reject = function (arg) {
     if (promise.isFulfilled) {
-      return;
+      return promise;
     }
     setRejected(promise);
 
@@ -69,6 +71,8 @@ module.exports = function makePromisePlus(options) {
 
       resolveFunction(result);
     }).catch(rejectFunction);
+
+    return promise;
   };
 
   return promise;
