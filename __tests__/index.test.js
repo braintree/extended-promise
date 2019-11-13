@@ -52,6 +52,15 @@ describe('ExtendedPromise', function () {
     });
   });
 
+  it('returns itself when calling resolve', function () {
+    var promise = new ExtendedPromise();
+    var result = {foo: 'bar'};
+
+    expect(promise.resolve(result)).toBe(promise);
+
+    return promise;
+  });
+
   it('can provide an onResolve function to run before it resolves', function () {
     var spy = jest.fn(function (result) {
       result.baz = 'foo';
@@ -138,6 +147,15 @@ describe('ExtendedPromise', function () {
       expect(err).toBe(error);
     });
   });
+
+  it('returns itself when calling reject', function () {
+    var promise = new ExtendedPromise();
+
+    expect(promise.reject(new Error('some error'))).toBe(promise);
+
+    return promise.catch(() => { /* noop */ });
+  });
+
 
   it('can provide an onReject function to run before it rejects', function () {
     var spy = jest.fn().mockRejectedValue(new Error('onReject error'));
