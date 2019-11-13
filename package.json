@@ -1,0 +1,17 @@
+{
+  "name": "@braintree/extended-promise",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "Braintree",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  },
+  "dependencies": {
+    "promise-polyfill": "^8.1.3"
+  }
+}
