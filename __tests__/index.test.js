@@ -13,28 +13,22 @@ describe('ExtendedPromise', function () {
     expect(promise.isFulfilled).toBe(false);
     expect(promise.isResolved).toBe(false);
     expect(promise.isRejected).toBe(false);
-
-    return promise.resolve();
   });
 
   it('updates status properties when it resolves', function () {
     var promise = new ExtendedPromise();
 
-    promise.resolve();
-
-    expect(promise.isFulfilled).toBe(true);
-    expect(promise.isResolved).toBe(true);
-    expect(promise.isRejected).toBe(false);
-
-    return promise;
+    return promise.resolve().then(function () {
+      expect(promise.isFulfilled).toBe(true);
+      expect(promise.isResolved).toBe(true);
+      expect(promise.isRejected).toBe(false);
+    });
   });
 
   it('updates status properties when it rejects', function () {
     var promise = new ExtendedPromise();
 
-    promise.reject();
-
-    return promise.catch(() => {
+    return promise.reject().catch(() => {
       expect(promise.isFulfilled).toBe(true);
       expect(promise.isResolved).toBe(false);
       expect(promise.isRejected).toBe(true);
@@ -57,62 +51,63 @@ describe('ExtendedPromise', function () {
     var result = {foo: 'bar'};
 
     expect(promise.resolve(result)).toBe(promise);
-
-    return promise;
   });
 
   it('can provide an onResolve function to run before it resolves', function () {
-    var spy = jest.fn(function (result) {
-      result.baz = 'foo';
-
-      return result;
-    });
     var promise = new ExtendedPromise({
-      onResolve: spy
-    });
-    var result = {foo: 'bar'};
+      onResolve(result) {
+        result.newProperty = 'new';
+        result.changedProperty = 'changed';
 
-    promise.resolve(result);
+        return result;
+      }   
+    });
+
+    promise.resolve({
+      unchangedProperty: 'unchanged',
+      changedProperty: 'unchanged'
+    });
 
     return promise.then(function (payload) {
-      expect(payload.foo).toBe('bar');
-      expect(payload.baz).toBe('foo');
+      expect(payload.unchangedProperty).toBe('unchanged');
+      expect(payload.changedProperty).toBe('changed');
+      expect(payload.newProperty).toBe('new');
     });
   });
 
   it('can provide an async onResolve function to run before it resolves', function () {
-    var spy = jest.fn(function (result) {
-      result.baz = 'foo';
-
-      return new Promise(function (resolve) {
-        setTimeout(function () {
-          result.foo = 'baz';
-
-          resolve(result);
-        }, 10);
-      });
-    });
     var promise = new ExtendedPromise({
-      onResolve: spy
-    });
-    var result = {foo: 'bar'};
+      onResolve(result) {
+        result.newProperty = 'new';
 
-    promise.resolve(result);
+        return new Promise(function (resolve) {
+          setTimeout(function () {
+            result.changedProperty = 'changed';
+
+            resolve(result);
+          }, 10);
+        });
+      }
+    });
+
+    promise.resolve({
+      unchangedProperty: 'unchanged',
+      changedProperty: 'unchanged'
+    });
 
     return promise.then(function (payload) {
-      expect(payload.foo).toBe('baz');
-      expect(payload.baz).toBe('foo');
+      expect(payload.unchangedProperty).toBe('unchanged');
+      expect(payload.changedProperty).toBe('changed');
+      expect(payload.newProperty).toBe('new');
     });
   });
 
   it('rejects if onResolve function rejects', function () {
-    var spy = jest.fn().mockRejectedValue(new Error('error'));
     var promise = new ExtendedPromise({
-      onResolve: spy
+      onResolve: jest.fn().mockRejectedValue(new Error('error'))
     });
-    var result = {foo: 'bar'};
 
-    promise.resolve(result);
+    promise.resolve({});
 
     return promise.then(rejectIfResolves).catch(function (err) {
       expect(err.message).toBe('error');
@@ -121,19 +116,15 @@ describe('ExtendedPromise', function () {
 
   it('uses onReject function if onResolve function rejects', function () {
     var err = new Error('resolved error');
-    var resolveSpy = jest.fn().mockRejectedValue(err);
-    var rejectSpy = jest.fn().mockResolvedValue({didError: true});
     var promise = new ExtendedPromise({
-      onResolve: resolveSpy,
-      onReject: rejectSpy
+      onResolve: jest.fn().mockRejectedValue(err),
+      onReject: jest.fn().mockResolvedValue({didError: true})
     });
 
-    promise.resolve({foo: 'bar'});
+    promise.resolve({});
 
     return promise.then(function (payload) {
       expect(payload.didError).toBe(true);
-      expect(promise.isRejected).toBe(false);
-      expect(promise.isResolved).toBe(true);
     });
   });
 
@@ -158,13 +149,11 @@ describe('ExtendedPromise', function () {
 
 
   it('can provide an onReject function to run before it rejects', function () {
-    var spy = jest.fn().mockRejectedValue(new Error('onReject error'));
     var promise = new ExtendedPromise({
-      onReject: spy
+      onReject: jest.fn().mockRejectedValue(new Error('onReject error'))
     });
-    var result = {foo: 'bar'};
 
-    promise.reject(result);
+    promise.reject(new Error('error'));
 
     return promise.then(rejectIfResolves).catch(function (err) {
       expect(err.message).toBe('onReject error');
@@ -172,18 +161,17 @@ describe('ExtendedPromise', function () {
   });
 
   it('can provide an async onReject function to run before it rejects', function () {
-    var spy = jest.fn(function () {
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-          reject(new Error('onReject error'));
-        }, 10);
-      });
-    });
     var promise = new ExtendedPromise({
-      onReject: spy
+      onReject() {
+        return new Promise(function (resolve, reject) {
+          setTimeout(function () {
+            reject(new Error('onReject error'));
+          }, 10);
+        });
+      }
     });
 
-    promise.reject({foo: 'bar'});
+    promise.reject(new Error('error'));
 
     return promise.then(rejectIfResolves).catch(function (err) {
       expect(err.message).toBe('onReject error');
@@ -191,12 +179,11 @@ describe('ExtendedPromise', function () {
   });
 
   it('resolves if onReject function resolves', function () {
-    var spy = jest.fn().mockResolvedValue({ok: 'ok'});
     var promise = new ExtendedPromise({
-      onReject: spy
+      onReject: jest.fn().mockResolvedValue({ok: 'ok'})
     });
 
-    promise.reject({foo: 'bar'});
+    promise.reject(new Error('error'));
 
     return promise.then(function (result) {
       expect(result.ok).toBe('ok');
