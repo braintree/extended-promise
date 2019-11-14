@@ -6,27 +6,27 @@ function rejectIfResolves() {
   return Promise.reject(new Error('should not have resolved'));
 }
 
-describe('ExtendedPromise', function () {
-  it('defaults status properties to false', function () {
-    var promise = new ExtendedPromise();
+describe('ExtendedPromise', () => {
+  it('defaults status properties to false', () => {
+    const promise = new ExtendedPromise();
 
     expect(promise.isFulfilled).toBe(false);
     expect(promise.isResolved).toBe(false);
     expect(promise.isRejected).toBe(false);
   });
 
-  it('updates status properties when it resolves', function () {
-    var promise = new ExtendedPromise();
+  it('updates status properties when it resolves', () => {
+    const promise = new ExtendedPromise();
 
-    return promise.resolve().then(function () {
+    return promise.resolve().then(() => {
       expect(promise.isFulfilled).toBe(true);
       expect(promise.isResolved).toBe(true);
       expect(promise.isRejected).toBe(false);
     });
   });
 
-  it('updates status properties when it rejects', function () {
-    var promise = new ExtendedPromise();
+  it('updates status properties when it rejects', () => {
+    const promise = new ExtendedPromise();
 
     return promise.reject().catch(() => {
       expect(promise.isFulfilled).toBe(true);
@@ -35,26 +35,26 @@ describe('ExtendedPromise', function () {
     });
   });
 
-  it('can resolve with resolve function', function () {
-    var promise = new ExtendedPromise();
-    var result = {foo: 'bar'};
+  it('can resolve with resolve function', () => {
+    const promise = new ExtendedPromise();
+    const result = {foo: 'bar'};
 
     promise.resolve(result);
 
-    return promise.then(function (payload) {
+    return promise.then(payload => {
       expect(payload).toBe(result);
     });
   });
 
-  it('returns itself when calling resolve', function () {
-    var promise = new ExtendedPromise();
-    var result = {foo: 'bar'};
+  it('returns itself when calling resolve', () => {
+    const promise = new ExtendedPromise();
+    const result = {foo: 'bar'};
 
     expect(promise.resolve(result)).toBe(promise);
   });
 
-  it('can provide an onResolve function to run before it resolves', function () {
-    var promise = new ExtendedPromise({
+  it('can provide an onResolve function to run before it resolves', () => {
+    const promise = new ExtendedPromise({
       onResolve(result) {
         result.newProperty = 'new';
         result.changedProperty = 'changed';
@@ -68,20 +68,20 @@ describe('ExtendedPromise', function () {
       changedProperty: 'unchanged'
     });
 
-    return promise.then(function (payload) {
+    return promise.then(payload => {
       expect(payload.unchangedProperty).toBe('unchanged');
       expect(payload.changedProperty).toBe('changed');
       expect(payload.newProperty).toBe('new');
     });
   });
 
-  it('can provide an async onResolve function to run before it resolves', function () {
-    var promise = new ExtendedPromise({
+  it('can provide an async onResolve function to run before it resolves', () => {
+    const promise = new ExtendedPromise({
       onResolve(result) {
         result.newProperty = 'new';
 
-        return new Promise(function (resolve) {
-          setTimeout(function () {
+        return new Promise(resolve => {
+          setTimeout(() => {
             result.changedProperty = 'changed';
 
             resolve(result);
@@ -95,52 +95,52 @@ describe('ExtendedPromise', function () {
       changedProperty: 'unchanged'
     });
 
-    return promise.then(function (payload) {
+    return promise.then(payload => {
       expect(payload.unchangedProperty).toBe('unchanged');
       expect(payload.changedProperty).toBe('changed');
       expect(payload.newProperty).toBe('new');
     });
   });
 
-  it('rejects if onResolve function rejects', function () {
-    var promise = new ExtendedPromise({
+  it('rejects if onResolve function rejects', () => {
+    const promise = new ExtendedPromise({
       onResolve: jest.fn().mockRejectedValue(new Error('error'))
     });
 
     promise.resolve({});
 
-    return promise.then(rejectIfResolves).catch(function (err) {
+    return promise.then(rejectIfResolves).catch(err => {
       expect(err.message).toBe('error');
     });
   });
 
-  it('uses onReject function if onResolve function rejects', function () {
-    var err = new Error('resolved error');
-    var promise = new ExtendedPromise({
+  it('uses onReject function if onResolve function rejects', () => {
+    const err = new Error('resolved error');
+    const promise = new ExtendedPromise({
       onResolve: jest.fn().mockRejectedValue(err),
       onReject: jest.fn().mockResolvedValue({didError: true})
     });
 
     promise.resolve({});
 
-    return promise.then(function (payload) {
+    return promise.then(payload => {
       expect(payload.didError).toBe(true);
     });
   });
 
-  it('can reject with reject function', function () {
-    var promise = new ExtendedPromise();
-    var error = new Error('foo');
+  it('can reject with reject function', () => {
+    const promise = new ExtendedPromise();
+    const error = new Error('foo');
 
     promise.reject(error);
 
-    return promise.then(rejectIfResolves).catch(function (err) {
+    return promise.then(rejectIfResolves).catch(err => {
       expect(err).toBe(error);
     });
   });
 
-  it('returns itself when calling reject', function () {
-    var promise = new ExtendedPromise();
+  it('returns itself when calling reject', () => {
+    const promise = new ExtendedPromise();
 
     expect(promise.reject(new Error('some error'))).toBe(promise);
 
@@ -148,23 +148,23 @@ describe('ExtendedPromise', function () {
   });
 
 
-  it('can provide an onReject function to run before it rejects', function () {
-    var promise = new ExtendedPromise({
+  it('can provide an onReject function to run before it rejects', () => {
+    const promise = new ExtendedPromise({
       onReject: jest.fn().mockRejectedValue(new Error('onReject error'))
     });
 
     promise.reject(new Error('error'));
 
-    return promise.then(rejectIfResolves).catch(function (err) {
+    return promise.then(rejectIfResolves).catch(err => {
       expect(err.message).toBe('onReject error');
     });
   });
 
-  it('can provide an async onReject function to run before it rejects', function () {
-    var promise = new ExtendedPromise({
+  it('can provide an async onReject function to run before it rejects', () => {
+    const promise = new ExtendedPromise({
       onReject() {
-        return new Promise(function (resolve, reject) {
-          setTimeout(function () {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
             reject(new Error('onReject error'));
           }, 10);
         });
@@ -173,27 +173,27 @@ describe('ExtendedPromise', function () {
 
     promise.reject(new Error('error'));
 
-    return promise.then(rejectIfResolves).catch(function (err) {
+    return promise.then(rejectIfResolves).catch(err => {
       expect(err.message).toBe('onReject error');
     });
   });
 
-  it('resolves if onReject function resolves', function () {
-    var promise = new ExtendedPromise({
+  it('resolves if onReject function resolves', () => {
+    const promise = new ExtendedPromise({
       onReject: jest.fn().mockResolvedValue({ok: 'ok'})
     });
 
     promise.reject(new Error('error'));
 
-    return promise.then(function (result) {
+    return promise.then(result => {
       expect(result.ok).toBe('ok');
       expect(promise.isRejected).toBe(false);
       expect(promise.isResolved).toBe(true);
     });
   });
 
-  it('will not update status properties when it has already resolved', function () {
-    var promise = new ExtendedPromise();
+  it('will not update status properties when it has already resolved', () => {
+    const promise = new ExtendedPromise();
 
     promise.resolve();
 
@@ -208,30 +208,30 @@ describe('ExtendedPromise', function () {
     expect(promise.isRejected).toBe(false);
   });
 
-  it('will not update the resolved value after it has already been resolved', function () {
-    var promise = new ExtendedPromise();
+  it('will not update the resolved value after it has already been resolved', () => {
+    const promise = new ExtendedPromise();
 
     promise.resolve('1');
 
-    return promise.then(function (result) {
+    return promise.then(result => {
       expect(result).toBe('1');
 
       promise.resolve('2');
 
       return promise;
-    }).then(function (result) {
+    }).then(result => {
       expect(result).toBe('1');
 
       promise.reject(new Error('foo'));
 
       return promise;
-    }).then(function (result) {
+    }).then(result => {
       expect(result).toBe('1');
     });
   });
 
-  it('will not update status properties when it has already rejected', function () {
-    var promise = new ExtendedPromise();
+  it('will not update status properties when it has already rejected', () => {
+    const promise = new ExtendedPromise();
 
     promise.reject();
 
@@ -248,25 +248,25 @@ describe('ExtendedPromise', function () {
     return promise.catch(() => { /* noop */ });
   });
 
-  it('will not update the rejected value after it has already been rejected', function () {
-    var promise = new ExtendedPromise();
-    var error = new Error('1');
+  it('will not update the rejected value after it has already been rejected', () => {
+    const promise = new ExtendedPromise();
+    const error = new Error('1');
 
     promise.reject(error);
 
-    return promise.then(rejectIfResolves).catch(function (result) {
+    return promise.then(rejectIfResolves).catch(result => {
       expect(result).toBe(error);
 
       promise.reject(new Error('2'));
 
       return promise;
-    }).then(rejectIfResolves).catch(function (result) {
+    }).then(rejectIfResolves).catch(result => {
       expect(result).toBe(error);
 
       promise.resolve('3');
 
       return promise;
-    }).then(rejectIfResolves).catch(function (result) {
+    }).then(rejectIfResolves).catch(result => {
       expect(result).toBe(error);
     });
   });
