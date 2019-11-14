@@ -87,7 +87,9 @@ var promise = new ExtendedPromise({
 If your environment does not support Promises, you can set the Promise object to be used directly on the Object.
 
 ```js
-ExtendedPromise.Promise = require('promise-polyfill');
+const PromisePolyfill = require('promise-polyfill');
+
+ExtendedPromise.setPromise(PromisePolyfill);
 ```
 
 ## Development

@@ -7,6 +7,13 @@ function rejectIfResolves() {
 }
 
 describe('ExtendedPromise', () => {
+  it('has all the methods a Promise object has', function () {
+    expect(ExtendedPromise.resolve).toBeInstanceOf(Function);
+    expect(ExtendedPromise.reject).toBeInstanceOf(Function);
+    expect(ExtendedPromise.all).toBeInstanceOf(Function);
+    expect(ExtendedPromise.race).toBeInstanceOf(Function);
+  });
+
   it('defaults status properties to false', () => {
     const promise = new ExtendedPromise();
 
@@ -279,9 +286,13 @@ describe('ExtendedPromise', () => {
     }
     FakePromise.resolve = jest.fn()
       .mockResolvedValueOnce()
+      .mockResolvedValueOnce()
       .mockResolvedValueOnce('value');
 
-    ExtendedPromise.Promise = FakePromise;
+    ExtendedPromise.setPromise(FakePromise);
+
+    ExtendedPromise.resolve('foo');
+    expect(FakePromise.resolve).toBeCalledWith('foo');
 
     const promise = new ExtendedPromise();
 

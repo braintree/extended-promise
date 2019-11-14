@@ -20,7 +20,27 @@ function ExtendedPromise(options) {
   return this._promise;
 }
 
-ExtendedPromise.Promise = global.Promise;
+ExtendedPromise.setPromise = function (PromiseClass) {
+  ExtendedPromise.Promise = PromiseClass;
+
+  if (!ExtendedPromise.Promise) {
+    // if no Promise object is available
+    // skip method setup
+  }
+
+  Object.getOwnPropertyNames(ExtendedPromise.Promise).forEach(function (method) {
+    if (typeof ExtendedPromise.Promise[method] === 'function') {
+      ExtendedPromise[method] = function () {
+        var args = Array.prototype.slice.call(arguments);
+
+        return ExtendedPromise.Promise[method].apply(ExtendedPromise.Promise, args);
+      };
+    }
+  });
+};
+
+// default to system level Promise, but allow it to be overwritten
+ExtendedPromise.setPromise(global.Promise);
 
 ExtendedPromise.defaultOnResolve = function (result) {
   return ExtendedPromise.Promise.resolve(result);
