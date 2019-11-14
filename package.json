@@ -1,6 +1,9 @@
 {
   "name": "@braintree/extended-promise",
   "version": "0.0.1",
+  "files": [
+    "index.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:braintree/extended-promise"
