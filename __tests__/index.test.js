@@ -278,15 +278,15 @@ describe('ExtendedPromise', () => {
   });
 
   it('can globally set a custom Promise to use', function (done) {
-    const fakeResolve = jest.fn().mockResolvedValue();
+    const fakeResolve = jest.fn().mockResolvedValue(null);
     const fakeReject = jest.fn();
 
     function FakePromise(fn) {
       fn(fakeResolve, fakeReject);
     }
     FakePromise.resolve = jest.fn()
-      .mockResolvedValueOnce()
-      .mockResolvedValueOnce()
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
       .mockResolvedValueOnce('value');
 
     ExtendedPromise.setPromise(FakePromise);
