@@ -11,13 +11,13 @@ npm install @braintree/extended-promise
 
 ## Why?
 
-This library was developed to make working with APIs that are not easilly wrapped in promises, such as kicking off a promise that resolves within a callback for an event listener.
+This library was developed to make working with APIs that are not easily wrapped in promises, such as kicking off a promise that resolves within a callback for an event listener.
 
 Before we wrote this lib, we were saving references to the underlying promise, and references to the `resolve`/`reject` functions in order to resolve and reject it later:
 
 ```js
 // without this lib
-class MyCustomObject () {
+class MyCustomObject {
   constructor () {
     this._promise = new Promise((resolve, reject) => {
       this._resolveFunction = resolve;
@@ -26,7 +26,7 @@ class MyCustomObject () {
   }
 
   asyncProcess() {
-    // do something very async that's not easilly wrapped in a promise
+    // do something very async that's not easily wrapped in a promise
     if (success) {
       this._resolveFunction(data);
     } else {
@@ -44,13 +44,13 @@ Instead, we can save a reference to just the promise, and then resolve or reject
 
 ```js
 // with this lib
-class MyCustomObject () {
+class MyCustomObject {
   constructor () {
     this._promise = new ExtendedPromise();
   }
 
   asyncProcess() {
-    // do something very async that's not easilly wrapped in a promise
+    // do something very async that's not easily wrapped in a promise
     if (success) {
       this._promise.resolve(data);
     } else {
