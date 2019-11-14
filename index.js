@@ -1,26 +1,16 @@
 'use strict';
 
-var Promise = global.Promise || require('promise-polyfill');
-
-function defaultOnResolve(result) {
-  return Promise.resolve(result);
-}
-
-function defaultOnReject(err) {
-  return Promise.reject(err);
-}
-
 function ExtendedPromise(options) {
   var self = this;
 
-  this._promise = new Promise(function (resolve, reject) {
+  this._promise = new ExtendedPromise.Promise(function (resolve, reject) {
     self._resolveFunction = resolve;
     self._rejectFunction = reject;
   });
 
   options = options || {};
-  this._onResolve = options.onResolve || defaultOnResolve;
-  this._onReject = options.onReject || defaultOnReject;
+  this._onResolve = options.onResolve || ExtendedPromise.defaultOnResolve;
+  this._onReject = options.onReject || ExtendedPromise.defaultOnReject;
 
   this._resetState();
 
@@ -30,6 +20,16 @@ function ExtendedPromise(options) {
   return this._promise;
 }
 
+ExtendedPromise.Promise = global.Promise;
+
+ExtendedPromise.defaultOnResolve = function (result) {
+  return ExtendedPromise.Promise.resolve(result);
+};
+
+ExtendedPromise.defaultOnReject = function (err) {
+  return ExtendedPromise.Promise.reject(err);
+};
+
 ExtendedPromise.prototype.resolve = function (arg) {
   var self = this;
 
@@ -38,7 +38,7 @@ ExtendedPromise.prototype.resolve = function (arg) {
   }
   this._setResolved();
 
-  Promise.resolve().then(function () {
+  ExtendedPromise.Promise.resolve().then(function () {
     return self._onResolve(arg);
   }).then(this._resolveFunction).catch(function (err) {
     self._resetState();
@@ -57,7 +57,7 @@ ExtendedPromise.prototype.reject = function (arg) {
   }
   this._setRejected();
 
-  Promise.resolve().then(function () {
+  ExtendedPromise.Promise.resolve().then(function () {
     return self._onReject(arg);
   }).then(function (result) {
     self._setResolved();

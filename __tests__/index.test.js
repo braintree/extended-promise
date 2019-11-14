@@ -269,4 +269,33 @@ describe('ExtendedPromise', () => {
       expect(result).toBe(error);
     });
   });
+
+  it('can globally set a custom Promise to use', function (done) {
+    const fakeResolve = jest.fn().mockResolvedValue();
+    const fakeReject = jest.fn();
+
+    function FakePromise(fn) {
+      fn(fakeResolve, fakeReject);
+    }
+    FakePromise.resolve = jest.fn()
+      .mockResolvedValueOnce()
+      .mockResolvedValueOnce('value');
+
+    ExtendedPromise.Promise = FakePromise;
+
+    const promise = new ExtendedPromise();
+
+    promise.resolve('value');
+
+    setTimeout(() => {
+      // have to do this in a setTimeout so that the mock promises
+      // have time to resolve
+      expect(fakeResolve).toBeCalledTimes(1);
+      expect(fakeResolve).toBeCalledWith('value');
+
+      // reset back to global Promise
+      ExtendedPromise.Promise = global.Promise;
+      done();
+    }, 1);
+  });
 });

@@ -23,7 +23,5 @@
     "eslint-config-braintree": "^4.0.0",
     "jest": "^24.9.0"
   },
-  "dependencies": {
-    "promise-polyfill": "^8.1.3"
-  }
+  "dependencies": {}
 }
