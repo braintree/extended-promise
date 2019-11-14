@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "braintree/server"
+  ],
+  "env": {
+    "es2015": true,
+    "jest": true
+  }
+}

@@ -60,7 +60,7 @@ describe('ExtendedPromise', () => {
         result.changedProperty = 'changed';
 
         return result;
-      }   
+      }
     });
 
     promise.resolve({
@@ -146,7 +146,6 @@ describe('ExtendedPromise', () => {
 
     return promise.catch(() => { /* noop */ });
   });
-
 
   it('can provide an onReject function to run before it rejects', () => {
     const promise = new ExtendedPromise({

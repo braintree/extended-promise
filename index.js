@@ -28,7 +28,7 @@ function ExtendedPromise(options) {
   this._promise.reject = this.reject.bind(this);
 
   return this._promise;
-};
+}
 
 ExtendedPromise.prototype.resolve = function (arg) {
   var self = this;
