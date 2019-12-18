@@ -3,6 +3,10 @@
 function ExtendedPromise(options) {
   var self = this;
 
+  if (typeof options === 'function') {
+    return new ExtendedPromise.Promise(options);
+  }
+
   this._promise = new ExtendedPromise.Promise(function (resolve, reject) {
     self._resolveFunction = resolve;
     self._rejectFunction = reject;

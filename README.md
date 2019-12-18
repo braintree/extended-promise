@@ -82,6 +82,26 @@ var promise = new ExtendedPromise({
 });
 ```
 
+## Use as a normal promise
+
+When `ExtendedPromise` is instantiated with a function, it will return the underlying Promise. The `resolve` and `reject` instance methods should not be used with this method. This is simply to make the migration to using ExtendedPromise easier.
+
+```
+var promise = new ExtendedPromise(function (resolve, reject) {
+  // if success
+  resolve('value');
+
+  // if failure
+  reject(new Error('err'));
+});
+
+promise.then(val => {
+  // handle result
+}).catch(err => {
+  // handle error
+})
+```
+
 ## Use a custom promise implementation
 
 If your environment does not support Promises, you can set the Promise object to be used directly on the Object.
