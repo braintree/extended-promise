@@ -11,6 +11,7 @@ describe('ExtendedPromise', () => {
     expect(ExtendedPromise.resolve).toBeInstanceOf(Function);
     expect(ExtendedPromise.reject).toBeInstanceOf(Function);
     expect(ExtendedPromise.all).toBeInstanceOf(Function);
+    expect(ExtendedPromise.allSettled).toBeInstanceOf(Function);
     expect(ExtendedPromise.race).toBeInstanceOf(Function);
   });
 

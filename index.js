@@ -1,5 +1,14 @@
 'use strict';
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Methods
+var PROMISE_METHODS = [
+  'all',
+  'allSettled',
+  'race',
+  'reject',
+  'resolve'
+];
+
 function ExtendedPromise(options) {
   var self = this;
 
@@ -24,24 +33,16 @@ function ExtendedPromise(options) {
   return this._promise;
 }
 
+PROMISE_METHODS.forEach(function (method) {
+  ExtendedPromise[method] = function () {
+    var args = Array.prototype.slice.call(arguments);
+
+    return ExtendedPromise.Promise[method].apply(ExtendedPromise.Promise, args);
+  };
+});
+
 ExtendedPromise.setPromise = function (PromiseClass) {
   ExtendedPromise.Promise = PromiseClass;
-
-  if (!ExtendedPromise.Promise) {
-    // if no Promise object is available
-    // skip method setup
-    return;
-  }
-
-  Object.getOwnPropertyNames(ExtendedPromise.Promise).forEach(function (method) {
-    if (typeof ExtendedPromise.Promise[method] === 'function') {
-      ExtendedPromise[method] = function () {
-        var args = Array.prototype.slice.call(arguments);
-
-        return ExtendedPromise.Promise[method].apply(ExtendedPromise.Promise, args);
-      };
-    }
-  });
 };
 
 // default to system level Promise, but allow it to be overwritten

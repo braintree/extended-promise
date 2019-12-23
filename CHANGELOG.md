@@ -1,3 +1,6 @@
+# 0.2.1
+* Limit promise method creation to known promise methods
+
 # 0.2.0
 * Allow ExtendedPromise to be a drop-in replacement for Promise
 
