@@ -1,4 +1,4 @@
-# unreleased
+# 0.2.0
 * Allow ExtendedPromise to be a drop-in replacement for Promise
 
 # 0.1.1
