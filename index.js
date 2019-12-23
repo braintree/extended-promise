@@ -30,6 +30,7 @@ ExtendedPromise.setPromise = function (PromiseClass) {
   if (!ExtendedPromise.Promise) {
     // if no Promise object is available
     // skip method setup
+    return;
   }
 
   Object.getOwnPropertyNames(ExtendedPromise.Promise).forEach(function (method) {
