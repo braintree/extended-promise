@@ -277,6 +277,27 @@ describe('ExtendedPromise', () => {
     });
   });
 
+  it('treats it as a normal promise if instantiated with a function', () => {
+    let didError = false;
+    const error = new Error('1');
+    const resolvingPromise = new ExtendedPromise(function (resolve) {
+      resolve('value');
+    });
+    const rejectingPromise = new ExtendedPromise(function (resolve, reject) {
+      reject(error);
+    });
+
+    return rejectingPromise.catch(e => {
+      expect(e).toBe(error);
+      didError = true;
+
+      return resolvingPromise;
+    }).then(val => {
+      expect(didError).toBe(true);
+      expect(val).toBe('value');
+    });
+  });
+
   it('can globally set a custom Promise to use', function (done) {
     const fakeResolve = jest.fn().mockResolvedValue(null);
     const fakeReject = jest.fn();

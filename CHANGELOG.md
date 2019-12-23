@@ -1,3 +1,6 @@
+# unreleased
+* Allow ExtendedPromise to be a drop-in replacement for Promise
+
 # 0.1.1
 * Fix issue where instantitation would fail if Promise global did not exist
 
