@@ -5,8 +5,28 @@ const ExtendedPromise = require('../');
 function rejectIfResolves() {
   return Promise.reject(new Error('should not have resolved'));
 }
+const fakeResolve = jest.fn().mockResolvedValue(null);
+const fakeReject = jest.fn();
+
+function FakePromise(fn) {
+  fn(fakeResolve, fakeReject);
+}
+FakePromise.prototype.then = jest.fn();
+FakePromise.prototype.catch = jest.fn();
+FakePromise.resolve = jest.fn();
 
 describe('ExtendedPromise', () => {
+  afterEach(() => {
+    // always revert back to the global Promise object after tests
+    ExtendedPromise.setPromise(global.Promise);
+
+    FakePromise.prototype.then.mockReset();
+    FakePromise.prototype.catch.mockReset();
+    fakeResolve.mockReset();
+    fakeReject.mockReset();
+    FakePromise.resolve.mockReset();
+  });
+
   it('has all the methods a Promise object has', function () {
     expect(ExtendedPromise.resolve).toBeInstanceOf(Function);
     expect(ExtendedPromise.reject).toBeInstanceOf(Function);
@@ -41,6 +61,44 @@ describe('ExtendedPromise', () => {
       expect(promise.isResolved).toBe(false);
       expect(promise.isRejected).toBe(true);
     });
+  });
+
+  it('can suppress unhandled promise messages', () => {
+    ExtendedPromise.setPromise(FakePromise);
+
+    const promiseWithoutCatch = new ExtendedPromise();
+
+    expect(promiseWithoutCatch.catch).toBeCalledTimes(0);
+
+    const promiseWithCatch = new ExtendedPromise({
+      suppressUnhandledPromiseMessage: true
+    });
+
+    expect(promiseWithCatch.catch).toBeCalledTimes(1);
+  });
+
+  it('can suppress unhandled promise messages with ExtendedPromise default', () => {
+    ExtendedPromise.setPromise(FakePromise);
+    ExtendedPromise.suppressUnhandledPromiseMessage = true;
+
+    const promise = new ExtendedPromise();
+
+    expect(promise.catch).toBeCalledTimes(1);
+
+    delete ExtendedPromise.suppressUnhandledPromiseMessage;
+  });
+
+  it('defers to setting passed into instance', () => {
+    ExtendedPromise.setPromise(FakePromise);
+    ExtendedPromise.suppressUnhandledPromiseMessage = true;
+
+    const promise = new ExtendedPromise({
+      suppressUnhandledPromiseMessage: false
+    });
+
+    expect(promise.catch).toBeCalledTimes(0);
+
+    delete ExtendedPromise.suppressUnhandledPromiseMessage;
   });
 
   it('can resolve with resolve function', () => {
@@ -300,17 +358,10 @@ describe('ExtendedPromise', () => {
   });
 
   it('can globally set a custom Promise to use', function (done) {
-    const fakeResolve = jest.fn().mockResolvedValue(null);
-    const fakeReject = jest.fn();
-
-    function FakePromise(fn) {
-      fn(fakeResolve, fakeReject);
-    }
-    FakePromise.resolve = jest.fn()
+    FakePromise.resolve
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce('value');
-
     ExtendedPromise.setPromise(FakePromise);
 
     ExtendedPromise.resolve('foo');
@@ -326,8 +377,6 @@ describe('ExtendedPromise', () => {
       expect(fakeResolve).toBeCalledTimes(1);
       expect(fakeResolve).toBeCalledWith('value');
 
-      // reset back to global Promise
-      ExtendedPromise.Promise = global.Promise;
       done();
     }, 1);
   });
