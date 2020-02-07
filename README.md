@@ -82,6 +82,42 @@ var promise = new ExtendedPromise({
 });
 ```
 
+## Suppress unhandled promise rejection warnings
+
+One of the benefits of using `ExtendedPromise` is that you can pass the promise object around and catch the errors asyncronously. However, this can result in Node or the browser assuming that when the promise rejects before you've added your rejection handler, that the promise is completely undhandled. To suppress these warnings, add the `suppressUnhandledPromiseMessage` option when instantiationg the promise:
+
+```js
+var promise = new ExtendedPromise({
+  suppressUnhandledPromiseMessage: true
+});
+
+// do async stuff that results in the promise rejecting
+// and don't worry about Node or the browser being
+// angry about it
+
+promise.catch(function (err) {
+  // handle this later
+});
+```
+
+You can also set this globally for all `ExtendedPromise`s:
+
+```js
+ExtendedPromise.suppressUnhandledPromiseMessage = true;
+
+var promise = new ExtendedPromise();
+
+// do async stuff that results in the promise rejecting
+// and don't worry about Node or the browser being
+// angry about it
+
+promise.catch(function (err) {
+  // handle this later
+});
+```
+
+If both the global property and the instance property are set, it will use the instance property.
+
 ## Use as a normal promise
 
 When `ExtendedPromise` is instantiated with a function, it will return the underlying Promise. The `resolve` and `reject` instance methods should not be used with this method. This is simply to make the migration to using ExtendedPromise easier.

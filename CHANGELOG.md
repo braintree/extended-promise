@@ -1,3 +1,6 @@
+# unreleased
+* Add `suppressUnhandledPromiseMessage` option
+
 # 0.2.1
 * Limit promise method creation to known promise methods
 
