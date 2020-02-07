@@ -1,4 +1,4 @@
-# unreleased
+# 0.3.0
 * Add `suppressUnhandledPromiseMessage` option
 
 # 0.2.1
