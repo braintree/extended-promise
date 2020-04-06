@@ -11,7 +11,9 @@
   "homepage": "https://github.com/braintree/extended-promise",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
+    "prebuild": "prettier --write .",
+    "build": "tsc",
+    "lint": "eslint --ext js,ts .",
     "posttest": "npm run lint",
     "test": "jest"
   },
@@ -19,9 +21,18 @@
   "author": "Braintree",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^25.1.4",
     "eslint": "^6.7.2",
-    "eslint-config-braintree": "^4.0.0",
-    "jest": "^24.9.0"
+    "eslint-config-braintree": "^5.0.0-typescript-prep-rc.17",
+    "jest": "^24.9.0",
+    "prettier": "^2.0.2",
+    "ts-jest": "^25.3.0",
+    "typescript": "^3.8.3"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "verbose": true
+  }
 }

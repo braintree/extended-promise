@@ -1,5 +1,3 @@
 {
-  "extends": [
-    "braintree/client"
-  ]
+  "extends": "braintree/client"
 }
