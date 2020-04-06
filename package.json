@@ -10,10 +10,11 @@
   },
   "homepage": "https://github.com/braintree/extended-promise",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run build",
     "prebuild": "prettier --write .",
-    "build": "tsc",
+    "build": "tsc --declaration",
     "lint": "eslint --ext js,ts .",
     "posttest": "npm run lint",
     "test": "jest"
