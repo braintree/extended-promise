@@ -9,7 +9,7 @@
     "url": "git@github.com:braintree/extended-promise"
   },
   "homepage": "https://github.com/braintree/extended-promise",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "prebuild": "prettier --write .",
     "build": "tsc",
