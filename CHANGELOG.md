@@ -1,3 +1,6 @@
+# unreleased
+* Add typescript types
+
 # 0.3.0
 
 - Add `suppressUnhandledPromiseMessage` option
