@@ -3,17 +3,31 @@ type ExtendedPromiseOptions = {
   onReject?: Function;
   suppressUnhandledPromiseMessage?: boolean;
 };
-interface PromiseFunction {
+type PromiseFunction = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (resolve: (value?: any) => void, reject: (reason?: any) => void): void;
+};
+interface PromiseModel {
+  new (f: PromiseFunction);
+  all: Function;
+  // TODO typescript doesn't have this on the PromiseConstructor type yet :(
+  allSettled?: Function;
+  race: Function;
+  resolve: Function;
+  reject: Function;
 }
+type PromiseInstance = {
+  then: Function;
+  catch: Function;
+};
 
 class ExtendedPromise {
-  static Promise = Promise; // eslint-disable-line no-undef
+  static Promise = Promise as PromiseModel; // eslint-disable-line no-undef
   static suppressUnhandledPromiseMessage: boolean;
-  static defaultOnResolve(result): Promise<any> {
+  static defaultOnResolve(result): PromiseModel {
     return ExtendedPromise.Promise.resolve(result);
   }
-  static defaultOnReject(err): Promise<any> {
+  static defaultOnReject(err): PromiseModel {
     return ExtendedPromise.Promise.reject(err);
   }
   static setPromise(PromiseClass): void {
@@ -29,20 +43,19 @@ class ExtendedPromise {
 
   // start Promise methods documented in:
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Methods
-  static all(arg): Promise<any> {
+  static all(arg): PromiseModel {
     return ExtendedPromise.Promise.all(arg);
   }
-  // TODO typescript doesn't have this on the Promise type yet :(
-  // static allSettled(arg): Promise<any> {
-  //   return ExtendedPromise.Promise.allSettled(arg);
-  // }
-  static race(arg): Promise<any> {
+  static allSettled(arg): PromiseModel {
+    return ExtendedPromise.Promise.allSettled(arg);
+  }
+  static race(arg): PromiseModel {
     return ExtendedPromise.Promise.race(arg);
   }
-  static reject(arg?): Promise<any> {
+  static reject(arg?): PromiseModel {
     return ExtendedPromise.Promise.reject(arg);
   }
-  static resolve(arg?): Promise<any> {
+  static resolve(arg?): PromiseModel {
     return ExtendedPromise.Promise.resolve(arg);
   }
   // end Promise methods
@@ -50,7 +63,7 @@ class ExtendedPromise {
   isFulfilled: boolean;
   isResolved: boolean;
   isRejected: boolean;
-  _promise: Promise<any>;
+  _promise: PromiseInstance;
   _onResolve: Function;
   _onReject: Function;
   _resolveFunction: Function;
@@ -82,11 +95,11 @@ class ExtendedPromise {
     this._resetState();
   }
 
-  then(...args): Promise<any> {
+  then(...args): PromiseInstance {
     return this._promise.then(...args);
   }
 
-  catch(...args): Promise<any> {
+  catch(...args): PromiseInstance {
     return this._promise.catch(...args);
   }
 

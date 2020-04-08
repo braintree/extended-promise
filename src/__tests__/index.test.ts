@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import ExtendedPromise = require("../");
 
 function rejectIfResolves(): Promise<any> {
