@@ -4,8 +4,10 @@ type ExtendedPromiseOptions = {
   suppressUnhandledPromiseMessage?: boolean;
 };
 type PromiseFunction = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (resolve: (value?: any) => void, reject: (reason?: any) => void): void;
+  (
+    resolve: (value?: unknown) => void,
+    reject: (reason?: unknown) => void
+  ): void;
 };
 interface PromiseModel {
   new (f: PromiseFunction);

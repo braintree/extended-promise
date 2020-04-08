@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import ExtendedPromise = require("../");
 
-function rejectIfResolves(): Promise<any> {
+function rejectIfResolves(): Promise<unknown> {
   return Promise.reject(new Error("should not have resolved"));
 }
 const fakeResolve = jest.fn().mockResolvedValue(null);
@@ -122,7 +121,7 @@ describe("ExtendedPromise", () => {
 
   it("can provide an onResolve function to run before it resolves", () => {
     const promise = new ExtendedPromise({
-      onResolve(result): any {
+      onResolve(result): unknown {
         result.newProperty = "new";
         result.changedProperty = "changed";
 
@@ -144,7 +143,7 @@ describe("ExtendedPromise", () => {
 
   it("can provide an async onResolve function to run before it resolves", () => {
     const promise = new ExtendedPromise({
-      onResolve(result): any {
+      onResolve(result): unknown {
         result.newProperty = "new";
 
         return new Promise((resolve) => {
@@ -230,7 +229,7 @@ describe("ExtendedPromise", () => {
 
   it("can provide an async onReject function to run before it rejects", () => {
     const promise = new ExtendedPromise({
-      onReject(): Promise<any> {
+      onReject(): Promise<unknown> {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             reject(new Error("onReject error"));
