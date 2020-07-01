@@ -62,7 +62,10 @@ ExtendedPromise.setPromise = function (PromiseClass) {
 };
 
 // default to system level Promise, but allow it to be overwritten
-ExtendedPromise.setPromise(global.Promise);
+if (typeof Promise !== 'undefined') {
+  // eslint-disable-next-line no-undef
+  ExtendedPromise.setPromise(Promise);
+}
 
 ExtendedPromise.defaultOnResolve = function (result) {
   return ExtendedPromise.Promise.resolve(result);

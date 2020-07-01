@@ -18,7 +18,7 @@ FakePromise.resolve = jest.fn();
 describe('ExtendedPromise', () => {
   afterEach(() => {
     // always revert back to the global Promise object after tests
-    ExtendedPromise.setPromise(global.Promise);
+    ExtendedPromise.setPromise(Promise);
 
     FakePromise.prototype.then.mockReset();
     FakePromise.prototype.catch.mockReset();
