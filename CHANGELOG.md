@@ -1,4 +1,4 @@
-# unreleased
+# 0.3.1
 * convert global to window (closes braintree-web#401)
 
 # 0.3.0
