@@ -1,5 +1,4 @@
-extended-promise
-----------------
+## extended-promise
 
 Promises are great! But, could they be even better?
 
@@ -18,7 +17,7 @@ Before we wrote this lib, we were saving references to the underlying promise, a
 ```js
 // without this lib
 class MyCustomObject {
-  constructor () {
+  constructor() {
     this._promise = new Promise((resolve, reject) => {
       this._resolveFunction = resolve;
       this._rejectFunction = reject;
@@ -30,7 +29,7 @@ class MyCustomObject {
     if (success) {
       this._resolveFunction(data);
     } else {
-      this._rejectFunction(new Error('fail'));
+      this._rejectFunction(new Error("fail"));
     }
   }
 
@@ -45,7 +44,7 @@ Instead, we can save a reference to just the promise, and then resolve or reject
 ```js
 // with this lib
 class MyCustomObject {
-  constructor () {
+  constructor() {
     this._promise = new ExtendedPromise();
   }
 
@@ -54,7 +53,7 @@ class MyCustomObject {
     if (success) {
       this._promise.resolve(data);
     } else {
-      this._promise.reject(new Error('fail'));
+      this._promise.reject(new Error("fail"));
     }
   }
 
@@ -78,7 +77,7 @@ var promise = new ExtendedPromise({
     return someFallbackDataInstead;
     // or if you want to continue through with the rejection
     return Promise.reject(error);
-  }
+  },
 });
 ```
 
@@ -88,7 +87,7 @@ One of the benefits of using `ExtendedPromise` is that you can pass the promise 
 
 ```js
 var promise = new ExtendedPromise({
-  suppressUnhandledPromiseMessage: true
+  suppressUnhandledPromiseMessage: true,
 });
 
 // do async stuff that results in the promise rejecting
@@ -143,7 +142,7 @@ promise.then(val => {
 If your environment does not support Promises, you can set the Promise object to be used directly on the Object.
 
 ```js
-const PromisePolyfill = require('promise-polyfill');
+const PromisePolyfill = require("promise-polyfill");
 
 ExtendedPromise.setPromise(PromisePolyfill);
 ```
