@@ -23,8 +23,12 @@ type PromiseInstance = {
   catch: Function;
 };
 
+const GlobalPromise = (typeof Promise !== "undefined"
+  ? Promise // eslint-disable-line no-undef
+  : null) as PromiseModel;
+
 class ExtendedPromise {
-  static Promise = Promise as PromiseModel; // eslint-disable-line no-undef
+  static Promise = GlobalPromise;
   static suppressUnhandledPromiseMessage: boolean;
   static defaultOnResolve(result): PromiseModel {
     return ExtendedPromise.Promise.resolve(result);
