@@ -1,3 +1,7 @@
+# 0.4.1
+
+- Fix issue where type definitions were not applied
+
 # 0.4.0
 
 - Add typescript types
