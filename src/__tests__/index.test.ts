@@ -62,7 +62,8 @@ describe("ExtendedPromise", () => {
   });
 
   it("can suppress unhandled promise messages", () => {
-    ExtendedPromise.setPromise(FakePromise);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ExtendedPromise.setPromise(FakePromise as any);
 
     const promiseWithoutCatch = new ExtendedPromise(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
@@ -77,7 +78,8 @@ describe("ExtendedPromise", () => {
   });
 
   it("can suppress unhandled promise messages with ExtendedPromise default", () => {
-    ExtendedPromise.setPromise(FakePromise);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ExtendedPromise.setPromise(FakePromise as any);
     ExtendedPromise.suppressUnhandledPromiseMessage = true;
 
     const promise = new ExtendedPromise(); // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -88,7 +90,8 @@ describe("ExtendedPromise", () => {
   });
 
   it("defers to setting passed into instance", () => {
-    ExtendedPromise.setPromise(FakePromise);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ExtendedPromise.setPromise(FakePromise as any);
     ExtendedPromise.suppressUnhandledPromiseMessage = true;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -377,7 +380,8 @@ describe("ExtendedPromise", () => {
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce("value");
-    ExtendedPromise.setPromise(FakePromise);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ExtendedPromise.setPromise(FakePromise as any);
 
     ExtendedPromise.resolve("foo");
     expect(FakePromise.resolve).toBeCalledWith("foo");

@@ -1,3 +1,5 @@
+// TODO these should be converted to not use Function everywhere
+/* eslint-disable @typescript-eslint/ban-types */
 type ExtendedPromiseOptions = {
   onResolve?: Function;
   onReject?: Function;
@@ -30,13 +32,13 @@ const GlobalPromise = (typeof Promise !== "undefined"
 class ExtendedPromise {
   static Promise = GlobalPromise;
   static suppressUnhandledPromiseMessage: boolean;
-  static defaultOnResolve(result): PromiseModel {
+  static defaultOnResolve(result: unknown): PromiseModel {
     return ExtendedPromise.Promise.resolve(result);
   }
-  static defaultOnReject(err): PromiseModel {
+  static defaultOnReject(err: Error): PromiseModel {
     return ExtendedPromise.Promise.reject(err);
   }
-  static setPromise(PromiseClass): void {
+  static setPromise(PromiseClass: typeof Promise): void {
     ExtendedPromise.Promise = PromiseClass;
   }
   static shouldCatchExceptions(options: ExtendedPromiseOptions): boolean {
@@ -49,19 +51,19 @@ class ExtendedPromise {
 
   // start Promise methods documented in:
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Methods
-  static all(arg): PromiseModel {
-    return ExtendedPromise.Promise.all(arg);
+  static all(args: unknown[]): PromiseModel {
+    return ExtendedPromise.Promise.all(args);
   }
-  static allSettled(arg): PromiseModel {
-    return ExtendedPromise.Promise.allSettled(arg);
+  static allSettled(args: unknown[]): PromiseModel {
+    return ExtendedPromise.Promise.allSettled(args);
   }
-  static race(arg): PromiseModel {
-    return ExtendedPromise.Promise.race(arg);
+  static race(args: unknown[]): PromiseModel {
+    return ExtendedPromise.Promise.race(args);
   }
-  static reject(arg?): PromiseModel {
+  static reject(arg?: Error): PromiseModel {
     return ExtendedPromise.Promise.reject(arg);
   }
-  static resolve(arg?): PromiseModel {
+  static resolve(arg?: unknown): PromiseModel {
     return ExtendedPromise.Promise.resolve(arg);
   }
   // end Promise methods
@@ -101,15 +103,15 @@ class ExtendedPromise {
     this._resetState();
   }
 
-  then(...args): PromiseInstance {
+  then(...args: unknown[]): PromiseInstance {
     return this._promise.then(...args);
   }
 
-  catch(...args): PromiseInstance {
+  catch(...args: unknown[]): PromiseInstance {
     return this._promise.catch(...args);
   }
 
-  resolve(arg?): ExtendedPromise {
+  resolve(arg?: unknown): ExtendedPromise {
     if (this.isFulfilled) {
       return this;
     }
@@ -131,7 +133,7 @@ class ExtendedPromise {
     return this;
   }
 
-  reject(arg?): ExtendedPromise {
+  reject(arg?: unknown): ExtendedPromise {
     if (this.isFulfilled) {
       return this;
     }
