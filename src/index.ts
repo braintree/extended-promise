@@ -34,10 +34,10 @@ class ExtendedPromise<T> extends Promise<T> {
   isFulfilled: boolean;
   isResolved: boolean;
   isRejected: boolean;
-  _onResolve: ResolveFunction<T>;
-  _onReject: RejectFunction<T>;
-  _resolveFunction: ResolveFunction<T>;
-  _rejectFunction: RejectFunction<T>;
+  private onResolve: ResolveFunction<T>;
+  private onReject: RejectFunction<T>;
+  private resolveFunction: ResolveFunction<T>;
+  private rejectFunction: RejectFunction<T>;
 
   constructor(options?: ExtendedPromiseConstructorOptions<T>) {
     if (typeof options === "function") {
@@ -51,12 +51,12 @@ class ExtendedPromise<T> extends Promise<T> {
       tempResolve = resolve;
       tempReject = reject;
     });
-    this._resolveFunction = tempResolve;
-    this._rejectFunction = tempReject;
+    this.resolveFunction = tempResolve;
+    this.rejectFunction = tempReject;
 
     options = options || {};
-    this._onResolve = options.onResolve || ExtendedPromise.defaultOnResolve;
-    this._onReject = options.onReject || ExtendedPromise.defaultOnReject;
+    this.onResolve = options.onResolve || ExtendedPromise.defaultOnResolve;
+    this.onReject = options.onReject || ExtendedPromise.defaultOnReject;
 
     if (
       ExtendedPromise.shouldCatchExceptions(
@@ -70,24 +70,24 @@ class ExtendedPromise<T> extends Promise<T> {
       });
     }
 
-    this._resetState();
+    this.resetState();
   }
 
   resolve(arg?: T): ExtendedPromise<T> {
     if (this.isFulfilled) {
       return this;
     }
-    this._setResolved();
+    this.setResolved();
 
     ExtendedPromise.resolve()
       .then(() => {
-        return this._onResolve(arg);
+        return this.onResolve(arg);
       })
       .then((argForResolveFunction) => {
-        this._resolveFunction(argForResolveFunction);
+        this.resolveFunction(argForResolveFunction);
       })
       .catch((err) => {
-        this._resetState();
+        this.resetState();
 
         this.reject(err);
       });
@@ -99,37 +99,37 @@ class ExtendedPromise<T> extends Promise<T> {
     if (this.isFulfilled) {
       return this;
     }
-    this._setRejected();
+    this.setRejected();
 
     ExtendedPromise.resolve()
       .then(() => {
-        return this._onReject(arg);
+        return this.onReject(arg);
       })
       .then((result) => {
-        this._setResolved();
+        this.setResolved();
 
-        this._resolveFunction(result);
+        this.resolveFunction(result);
       })
       .catch((err) => {
-        return this._rejectFunction(err);
+        return this.rejectFunction(err);
       });
 
     return this;
   }
 
-  _resetState(): void {
+  private resetState(): void {
     this.isFulfilled = false;
     this.isResolved = false;
     this.isRejected = false;
   }
 
-  _setResolved(): void {
+  private setResolved(): void {
     this.isFulfilled = true;
     this.isResolved = true;
     this.isRejected = false;
   }
 
-  _setRejected(): void {
+  private setRejected(): void {
     this.isFulfilled = true;
     this.isResolved = false;
     this.isRejected = true;
