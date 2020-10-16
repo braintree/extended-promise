@@ -1,123 +1,85 @@
-// TODO these should be converted to not use Function everywhere
-/* eslint-disable @typescript-eslint/ban-types */
-type ExtendedPromiseOptions = {
-  onResolve?: Function;
-  onReject?: Function;
+type PromiseConstructorOptions<T> = (
+  resolve: (value?: T | PromiseLike<T>) => void,
+  reject: (reason?: Error) => void
+) => void;
+type ResolveFunction<T> = (arg?: T) => T | PromiseLike<T>;
+type RejectFunction<T> = (err?: Error) => T | PromiseLike<T>;
+type ExtendedPromiseOptions<T> = {
+  onResolve?: ResolveFunction<T>;
+  onReject?: RejectFunction<T>;
   suppressUnhandledPromiseMessage?: boolean;
 };
-type PromiseFunction = {
-  (
-    resolve: (value?: unknown) => void,
-    reject: (reason?: unknown) => void
-  ): void;
-};
-interface PromiseModel {
-  new (f: PromiseFunction);
-  all: Function;
-  // TODO typescript doesn't have this on the PromiseConstructor type yet :(
-  allSettled?: Function;
-  race: Function;
-  resolve: Function;
-  reject: Function;
-}
-type PromiseInstance = {
-  then: Function;
-  catch: Function;
-};
+type ExtendedPromiseConstructorOptions<T> =
+  | ExtendedPromiseOptions<T>
+  | PromiseConstructorOptions<T>;
 
-const GlobalPromise = (typeof Promise !== "undefined"
-  ? Promise // eslint-disable-line no-undef
-  : null) as PromiseModel;
-
-class ExtendedPromise {
-  static Promise = GlobalPromise;
+class ExtendedPromise<T> extends Promise<T> {
   static suppressUnhandledPromiseMessage: boolean;
-  static defaultOnResolve(result: unknown): PromiseModel {
-    return ExtendedPromise.Promise.resolve(result);
+  static defaultOnResolve<T>(result?: T): Promise<T> {
+    return ExtendedPromise.resolve(result);
   }
-  static defaultOnReject(err: Error): PromiseModel {
-    return ExtendedPromise.Promise.reject(err);
+  static defaultOnReject<T>(err?: Error): Promise<T> {
+    return ExtendedPromise.reject(err);
   }
-  static setPromise(PromiseClass: typeof Promise): void {
-    ExtendedPromise.Promise = PromiseClass;
-  }
-  static shouldCatchExceptions(options: ExtendedPromiseOptions): boolean {
-    if (options.hasOwnProperty("suppressUnhandledPromiseMessage")) {
-      return Boolean(options.suppressUnhandledPromiseMessage);
+  static shouldCatchExceptions(
+    suppressUnhandledPromiseMessage?: boolean
+  ): boolean {
+    if (typeof suppressUnhandledPromiseMessage === "boolean") {
+      return Boolean(suppressUnhandledPromiseMessage);
     }
 
     return Boolean(ExtendedPromise.suppressUnhandledPromiseMessage);
   }
 
-  // start Promise methods documented in:
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Methods
-  static all(args: unknown[]): PromiseModel {
-    return ExtendedPromise.Promise.all(args);
-  }
-  static allSettled(args: unknown[]): PromiseModel {
-    return ExtendedPromise.Promise.allSettled(args);
-  }
-  static race(args: unknown[]): PromiseModel {
-    return ExtendedPromise.Promise.race(args);
-  }
-  static reject(arg?: Error): PromiseModel {
-    return ExtendedPromise.Promise.reject(arg);
-  }
-  static resolve(arg?: unknown): PromiseModel {
-    return ExtendedPromise.Promise.resolve(arg);
-  }
-  // end Promise methods
-
   isFulfilled: boolean;
   isResolved: boolean;
   isRejected: boolean;
-  _promise: PromiseInstance;
-  _onResolve: Function;
-  _onReject: Function;
-  _resolveFunction: Function;
-  _rejectFunction: Function;
+  _onResolve: ResolveFunction<T>;
+  _onReject: RejectFunction<T>;
+  _resolveFunction: ResolveFunction<T>;
+  _rejectFunction: RejectFunction<T>;
 
-  constructor(options?: ExtendedPromiseOptions | PromiseFunction) {
+  constructor(options?: ExtendedPromiseConstructorOptions<T>) {
     if (typeof options === "function") {
-      this._promise = new ExtendedPromise.Promise(options);
+      super(options);
       return;
     }
 
-    this._promise = new ExtendedPromise.Promise((resolve, reject) => {
-      this._resolveFunction = resolve;
-      this._rejectFunction = reject;
+    let tempResolve, tempReject;
+
+    super((resolve, reject) => {
+      tempResolve = resolve;
+      tempReject = reject;
     });
+    this._resolveFunction = tempResolve;
+    this._rejectFunction = tempReject;
 
     options = options || {};
     this._onResolve = options.onResolve || ExtendedPromise.defaultOnResolve;
     this._onReject = options.onReject || ExtendedPromise.defaultOnReject;
 
-    if (ExtendedPromise.shouldCatchExceptions(options)) {
-      this._promise.catch(function () {
+    if (
+      ExtendedPromise.shouldCatchExceptions(
+        options.suppressUnhandledPromiseMessage
+      )
+    ) {
+      this.catch(() => {
         // prevents unhandled promise rejection warning
         // in the console for extended promises that
-        // that catch the error in an asynchronous manner
+        // catch the error in an asynchronous manner
       });
     }
 
     this._resetState();
   }
 
-  then(...args: unknown[]): PromiseInstance {
-    return this._promise.then(...args);
-  }
-
-  catch(...args: unknown[]): PromiseInstance {
-    return this._promise.catch(...args);
-  }
-
-  resolve(arg?: unknown): ExtendedPromise {
+  resolve(arg?: T): ExtendedPromise<T> {
     if (this.isFulfilled) {
       return this;
     }
     this._setResolved();
 
-    ExtendedPromise.Promise.resolve()
+    ExtendedPromise.resolve()
       .then(() => {
         return this._onResolve(arg);
       })
@@ -133,13 +95,13 @@ class ExtendedPromise {
     return this;
   }
 
-  reject(arg?: unknown): ExtendedPromise {
+  reject(arg?: Error): ExtendedPromise<T> {
     if (this.isFulfilled) {
       return this;
     }
     this._setRejected();
 
-    ExtendedPromise.Promise.resolve()
+    ExtendedPromise.resolve()
       .then(() => {
         return this._onReject(arg);
       })

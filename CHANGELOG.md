@@ -1,3 +1,12 @@
+# unreleased
+
+- Extends Promise global directly
+
+_Breaking Changes _
+
+- Drop browser support for Internet Explorer 11
+- Requires a Promise global to be present before importing the module
+
 # 0.4.1
 
 - Fix issue where type definitions were not applied
