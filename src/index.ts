@@ -25,9 +25,11 @@ type PromiseInstance = {
   catch: Function;
 };
 
-const GlobalPromise = (typeof Promise !== "undefined"
-  ? Promise // eslint-disable-line no-undef
-  : null) as PromiseModel;
+const GlobalPromise = (
+  typeof Promise !== "undefined"
+    ? Promise // eslint-disable-line no-undef
+    : null
+) as PromiseModel;
 
 class ExtendedPromise {
   static Promise = GlobalPromise;
