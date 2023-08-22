@@ -8,7 +8,7 @@ type ExtendedPromiseOptions = {
 type PromiseFunction = {
   (
     resolve: (value?: unknown) => void,
-    reject: (reason?: unknown) => void
+    reject: (reason?: unknown) => void,
   ): void;
 };
 interface PromiseModel {
