@@ -1,3 +1,10 @@
+# UNRELEASED
+- Dependency Updates
+  - Update eslint-plugin-prettier to v5
+  - Update prettier to v3
+  - Update node to v18
+  - Update typescript to v5.1.6
+
 # 0.4.1
 
 - Fix issue where type definitions were not applied
