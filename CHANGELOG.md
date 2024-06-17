@@ -1,5 +1,9 @@
 # UNRELEASED
 
+- Bumps @babel/traverse from 7.21.2 to 7.23.2
+
+# 1.0.0
+
 - Dependency Updates
   - Update node to v18
 
