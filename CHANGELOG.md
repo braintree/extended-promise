@@ -1,6 +1,14 @@
 # UNRELEASED
 
-- Update braces to 3.0.3
+- Update (sub-)dependencies
+ - `babel` to 7.25.9
+ - `braces` to 3.0.3
+ - `cross-spawn` to 7.0.6
+ - `fill-range` to 7.1.1
+ - `micromatch` to 4.0.8
+ - `picomatch` to 2.3.1
+ - `set-array` to 1.2.1
+ - `trace-mapping` to 0.3.25
 
 # 1.0.0
 
