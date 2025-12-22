@@ -33,7 +33,7 @@ const GlobalPromise = (
 
 class ExtendedPromise {
   static Promise = GlobalPromise;
-  static suppressUnhandledPromiseMessage: boolean;
+  static suppressUnhandledPromiseMessage?: boolean;
   static defaultOnResolve(result: unknown): PromiseModel {
     return ExtendedPromise.Promise.resolve(result);
   }
