@@ -1,4 +1,4 @@
-import ExtendedPromise = require("../");
+import ExtendedPromise from "../";
 
 function rejectIfResolves(): Promise<unknown> {
   return Promise.reject(new Error("should not have resolved"));
@@ -6,9 +6,10 @@ function rejectIfResolves(): Promise<unknown> {
 const fakeResolve = jest.fn().mockResolvedValue(null);
 const fakeReject = jest.fn();
 
-function FakePromise(fn): void {
+function FakePromise(fn: (arg0: jest.Mock, arg1: jest.Mock) => void): void {
   fn(fakeResolve, fakeReject);
 }
+
 FakePromise.prototype.then = jest.fn();
 FakePromise.prototype.catch = jest.fn();
 FakePromise.resolve = jest.fn();
@@ -41,7 +42,7 @@ describe("ExtendedPromise", () => {
     expect(promise.isRejected).toBe(false);
   });
 
-  it("updates status properties when it resolves", () => {
+  it("updates status properties when it resolves", async () => {
     const promise = new ExtendedPromise();
 
     return promise.resolve().then(() => {
@@ -51,7 +52,7 @@ describe("ExtendedPromise", () => {
     });
   });
 
-  it("updates status properties when it rejects", () => {
+  it("updates status properties when it rejects", async () => {
     const promise = new ExtendedPromise();
 
     return promise.reject().catch(() => {
@@ -67,14 +68,14 @@ describe("ExtendedPromise", () => {
 
     const promiseWithoutCatch = new ExtendedPromise(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
-    expect(FakePromise.prototype.catch).toBeCalledTimes(0);
+    expect(FakePromise.prototype.catch).toHaveBeenCalledTimes(0);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const promiseWithCatch = new ExtendedPromise({
       suppressUnhandledPromiseMessage: true,
     });
 
-    expect(FakePromise.prototype.catch).toBeCalledTimes(1);
+    expect(FakePromise.prototype.catch).toHaveBeenCalledTimes(1);
   });
 
   it("can suppress unhandled promise messages with ExtendedPromise default", () => {
@@ -84,7 +85,7 @@ describe("ExtendedPromise", () => {
 
     const promise = new ExtendedPromise(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
-    expect(FakePromise.prototype.catch).toBeCalledTimes(1);
+    expect(FakePromise.prototype.catch).toHaveBeenCalledTimes(1);
 
     delete ExtendedPromise.suppressUnhandledPromiseMessage;
   });
@@ -99,18 +100,18 @@ describe("ExtendedPromise", () => {
       suppressUnhandledPromiseMessage: false,
     });
 
-    expect(FakePromise.prototype.catch).toBeCalledTimes(0);
+    expect(FakePromise.prototype.catch).toHaveBeenCalledTimes(0);
 
     delete ExtendedPromise.suppressUnhandledPromiseMessage;
   });
 
-  it("can resolve with resolve function", () => {
+  it("can resolve with resolve function", async () => {
     const promise = new ExtendedPromise();
     const result = { foo: "bar" };
 
     promise.resolve(result);
 
-    return promise.then((payload) => {
+    return promise.then((payload: { foo: string }) => {
       expect(payload).toBe(result);
     });
   });
@@ -122,9 +123,12 @@ describe("ExtendedPromise", () => {
     expect(promise.resolve(result)).toBe(promise);
   });
 
-  it("can provide an onResolve function to run before it resolves", () => {
+  it("can provide an onResolve function to run before it resolves", async () => {
     const promise = new ExtendedPromise({
-      onResolve(result): unknown {
+      onResolve(result: {
+        newProperty: string;
+        changedProperty: string;
+      }): unknown {
         result.newProperty = "new";
         result.changedProperty = "changed";
 
@@ -137,16 +141,25 @@ describe("ExtendedPromise", () => {
       changedProperty: "unchanged",
     });
 
-    return promise.then((payload) => {
-      expect(payload.unchangedProperty).toBe("unchanged");
-      expect(payload.changedProperty).toBe("changed");
-      expect(payload.newProperty).toBe("new");
-    });
+    return promise.then(
+      (payload: {
+        newProperty: string;
+        changedProperty: string;
+        unchangedProperty: string;
+      }) => {
+        expect(payload.unchangedProperty).toBe("unchanged");
+        expect(payload.changedProperty).toBe("changed");
+        expect(payload.newProperty).toBe("new");
+      },
+    );
   });
 
-  it("can provide an async onResolve function to run before it resolves", () => {
+  it("can provide an async onResolve function to run before it resolves", async () => {
     const promise = new ExtendedPromise({
-      onResolve(result): unknown {
+      onResolve(result: {
+        newProperty: string;
+        changedProperty: string;
+      }): unknown {
         result.newProperty = "new";
 
         return new Promise((resolve) => {
@@ -164,11 +177,17 @@ describe("ExtendedPromise", () => {
       changedProperty: "unchanged",
     });
 
-    return promise.then((payload) => {
-      expect(payload.unchangedProperty).toBe("unchanged");
-      expect(payload.changedProperty).toBe("changed");
-      expect(payload.newProperty).toBe("new");
-    });
+    return promise.then(
+      (payload: {
+        newProperty: string;
+        changedProperty: string;
+        unchangedProperty: string;
+      }) => {
+        expect(payload.unchangedProperty).toBe("unchanged");
+        expect(payload.changedProperty).toBe("changed");
+        expect(payload.newProperty).toBe("new");
+      },
+    );
   });
 
   it("rejects if onResolve function rejects", () => {
@@ -178,12 +197,12 @@ describe("ExtendedPromise", () => {
 
     promise.resolve({});
 
-    return promise.then(rejectIfResolves).catch((err) => {
+    return promise.then(rejectIfResolves).catch((err: Error) => {
       expect(err.message).toBe("error");
     });
   });
 
-  it("uses onReject function if onResolve function rejects", () => {
+  it("uses onReject function if onResolve function rejects", async () => {
     const err = new Error("resolved error");
     const promise = new ExtendedPromise({
       onResolve: jest.fn().mockRejectedValue(err),
@@ -192,7 +211,7 @@ describe("ExtendedPromise", () => {
 
     promise.resolve({});
 
-    return promise.then((payload) => {
+    return promise.then((payload: { didError: boolean }) => {
       expect(payload.didError).toBe(true);
     });
   });
@@ -203,12 +222,12 @@ describe("ExtendedPromise", () => {
 
     promise.reject(error);
 
-    return promise.then(rejectIfResolves).catch((err) => {
+    return promise.then(rejectIfResolves).catch((err: Error) => {
       expect(err).toBe(error);
     });
   });
 
-  it("returns itself when calling reject", () => {
+  it("returns itself when calling reject", async () => {
     const promise = new ExtendedPromise();
 
     expect(promise.reject(new Error("some error"))).toBe(promise);
@@ -225,7 +244,7 @@ describe("ExtendedPromise", () => {
 
     promise.reject(new Error("error"));
 
-    return promise.then(rejectIfResolves).catch((err) => {
+    return promise.then(rejectIfResolves).catch((err: Error) => {
       expect(err.message).toBe("onReject error");
     });
   });
@@ -243,19 +262,19 @@ describe("ExtendedPromise", () => {
 
     promise.reject(new Error("error"));
 
-    return promise.then(rejectIfResolves).catch((err) => {
+    return promise.then(rejectIfResolves).catch((err: Error) => {
       expect(err.message).toBe("onReject error");
     });
   });
 
-  it("resolves if onReject function resolves", () => {
+  it("resolves if onReject function resolves", async () => {
     const promise = new ExtendedPromise({
       onReject: jest.fn().mockResolvedValue({ ok: "ok" }),
     });
 
     promise.reject(new Error("error"));
 
-    return promise.then((result) => {
+    return promise.then((result: { ok: string }) => {
       expect(result.ok).toBe("ok");
       expect(promise.isRejected).toBe(false);
       expect(promise.isResolved).toBe(true);
@@ -284,26 +303,26 @@ describe("ExtendedPromise", () => {
     promise.resolve("1");
 
     return promise
-      .then((result) => {
+      .then((result: string) => {
         expect(result).toBe("1");
 
         promise.resolve("2");
 
         return promise;
       })
-      .then((result) => {
+      .then((result: string) => {
         expect(result).toBe("1");
 
         promise.reject(new Error("foo"));
 
         return promise;
       })
-      .then((result) => {
+      .then((result: string) => {
         expect(result).toBe("1");
       });
   });
 
-  it("will not update status properties when it has already rejected", () => {
+  it("will not update status properties when it has already rejected", async () => {
     const promise = new ExtendedPromise();
 
     promise.reject();
@@ -331,7 +350,7 @@ describe("ExtendedPromise", () => {
 
     return promise
       .then(rejectIfResolves)
-      .catch((result) => {
+      .catch((result: string) => {
         expect(result).toBe(error);
 
         promise.reject(new Error("2"));
@@ -339,7 +358,7 @@ describe("ExtendedPromise", () => {
         return promise;
       })
       .then(rejectIfResolves)
-      .catch((result) => {
+      .catch((result: string) => {
         expect(result).toBe(error);
 
         promise.resolve("3");
@@ -347,7 +366,7 @@ describe("ExtendedPromise", () => {
         return promise;
       })
       .then(rejectIfResolves)
-      .catch((result) => {
+      .catch((result: string) => {
         expect(result).toBe(error);
       });
   });
@@ -363,13 +382,13 @@ describe("ExtendedPromise", () => {
     });
 
     return rejectingPromise
-      .catch((e) => {
+      .catch((e: Error) => {
         expect(e).toBe(error);
         didError = true;
 
         return resolvingPromise;
       })
-      .then((val) => {
+      .then((val: string) => {
         expect(didError).toBe(true);
         expect(val).toBe("value");
       });
@@ -384,7 +403,7 @@ describe("ExtendedPromise", () => {
     ExtendedPromise.setPromise(FakePromise as any);
 
     ExtendedPromise.resolve("foo");
-    expect(FakePromise.resolve).toBeCalledWith("foo");
+    expect(FakePromise.resolve).toHaveBeenCalledWith("foo");
 
     const promise = new ExtendedPromise();
 
@@ -393,8 +412,8 @@ describe("ExtendedPromise", () => {
     setTimeout(() => {
       // have to do this in a setTimeout so that the mock promises
       // have time to resolve
-      expect(fakeResolve).toBeCalledTimes(1);
-      expect(fakeResolve).toBeCalledWith("value");
+      expect(fakeResolve).toHaveBeenCalledTimes(1);
+      expect(fakeResolve).toHaveBeenCalledWith("value");
 
       done();
     }, 1);
