@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.3
+
+- Add @types/node 24.0.0
+
 ## 1.0.2
 
 - Update dependencies
