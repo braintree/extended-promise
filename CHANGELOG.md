@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## UNRELEASED
+
+- feat(deps): Add [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) to the repo
+
 ## 1.0.3
 
 - Add @types/node 24.0.0
@@ -63,7 +67,7 @@
 
 ## 0.1.1
 
-- Fix issue where instantitation would fail if Promise global did not exist
+- Fix issue where instantiation would fail if Promise global did not exist
 
 ## 0.1.0
 
